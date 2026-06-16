@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Casco integrado para scooters · Movilidad segura</title>
+<style>
+  :root{
+    --navy:#0F2436; --navy2:#1C3A55; --amber:#FFB100; --teal:#1C8C8C;
+    --ink:#152232; --slate:#5C6B7A; --light:#F2F5F8; --line:#E2E8EF; --white:#fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--white);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+
+  /* top bar */
+  header{padding:20px 0;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px;font-size:18px;color:var(--navy)}
+  .dot{width:30px;height:30px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:16px}
+
+  /* hero */
+  .hero{padding:64px 0 52px;background:var(--navy);color:#fff;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-120px;top:-120px;width:380px;height:380px;border-radius:50%;background:var(--navy2);opacity:.6}
+  .hero .wrap{position:relative;z-index:1;max-width:760px}
+  .eyebrow{color:var(--amber);font-weight:800;font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px}
+  h1{font-size:clamp(30px,5vw,46px);line-height:1.08;font-weight:800;margin-bottom:18px}
+  .sub{font-size:clamp(16px,2.2vw,19px);color:#C7D2DD;max-width:640px;margin-bottom:30px}
+  .cta{display:inline-flex;align-items:center;gap:10px;background:var(--amber);color:var(--navy);
+    font-weight:800;font-size:17px;padding:16px 30px;border:none;border-radius:12px;cursor:pointer;
+    box-shadow:0 8px 24px rgba(255,177,0,.28);transition:transform .12s ease, box-shadow .12s ease}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(255,177,0,.36)}
+  .cta:active{transform:translateY(0)}
+  .micro{margin-top:14px;font-size:13px;color:#9FB0BF}
+
+  /* features */
+  .features{padding:54px 0}
+  .features h2{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--slate);margin-bottom:26px;font-weight:800}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{background:var(--light);border-radius:16px;padding:26px 22px}
+  .ic{width:48px;height:48px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+  .card h3{font-size:18px;margin-bottom:6px;color:var(--ink)}
+  .card p{font-size:14.5px;color:var(--slate)}
+
+  /* secondary cta band */
+  .band{background:var(--light);border-top:1px solid var(--line);padding:48px 0;text-align:center}
+  .band h3{font-size:clamp(22px,3.5vw,30px);font-weight:800;color:var(--ink);margin-bottom:8px}
+  .band p{color:var(--slate);margin-bottom:24px}
+
+  footer{padding:26px 0;border-top:1px solid var(--line);color:var(--slate);font-size:13px;text-align:center}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(15,36,54,.62);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:18px;max-width:430px;width:100%;padding:34px 30px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+  .modal .big{width:62px;height:62px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px}
+  .modal h3{font-size:22px;margin-bottom:10px}
+  .modal p{color:var(--slate);font-size:15px;margin-bottom:20px}
+  .modal input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin-bottom:12px}
+  .modal .go{width:100%;background:var(--navy);color:#fff;border:none;padding:14px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer}
+  .modal .close{margin-top:14px;background:none;border:none;color:var(--slate);font-size:13px;cursor:pointer;text-decoration:underline}
+
+  /* stats panel (only with ?stats=1) */
+  #stats{position:fixed;right:14px;bottom:14px;width:300px;background:#fff;border:1px solid var(--line);
+    border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:16px;font-size:13px;z-index:60;display:none}
+  #stats.show{display:block}
+  #stats h4{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-bottom:10px}
+  #stats table{width:100%;border-collapse:collapse}
+  #stats th,#stats td{text-align:right;padding:5px 4px;border-bottom:1px solid var(--line)}
+  #stats th:first-child,#stats td:first-child{text-align:left}
+  #stats .row-btns{display:flex;gap:8px;margin-top:10px}
+  #stats button{flex:1;font-size:12px;padding:7px;border:1px solid var(--line);background:var(--light);border-radius:8px;cursor:pointer}
+  .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1px;padding:3px 8px;border-radius:6px;background:rgba(255,177,0,.18);color:#8a6200}
+
+  @media(max-width:740px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap brand"><span class="dot">🛵</span> ScootSafe <span class="tag" id="vtag" style="margin-left:8px"></span></div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="headline"></h1>
+    <p class="sub" id="subhead"></p>
+    <button class="cta" id="ctaMain"></button>
+    <div class="micro" id="micro"></div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="wrap">
+    <h2 id="featTitle">Por qué elegirnos</h2>
+    <div class="grid" id="featGrid"></div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h3 id="bandH"></h3>
+    <p id="bandP"></p>
+    <button class="cta" id="ctaSecond"></button>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">ScootSafe · Proyecto piloto · Las Condes, Santiago · Grupo 7 UANDES 2026</div>
+</footer>
+
+<!-- smoke-test modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="big">✓</div>
+    <h3>¡Gracias por tu interés!</h3>
+    <p>Estamos en fase piloto en Las Condes. Déjanos tu correo y te avisamos cuando el casco integrado esté disponible en tu scooter.</p>
+    <input type="email" id="email" placeholder="tucorreo@ejemplo.cl" />
+    <button class="go" id="leadBtn">Avísame del lanzamiento</button>
+    <button class="close" id="closeBtn">Cerrar</button>
+  </div>
+</div>
+
+<!-- live stats (?stats=1) -->
+<div id="stats">
+  <h4>Métricas locales (este navegador)</h4>
+  <table>
+    <tr><th>Variante</th><th>Vistas</th><th>Clics</th><th>CTR</th></tr>
+    <tr><td>A · legal</td><td id="iA">0</td><td id="cA">0</td><td id="rA">–</td></tr>
+    <tr><td>B · control</td><td id="iB">0</td><td id="cB">0</td><td id="rB">–</td></tr>
+  </table>
+  <div class="row-btns">
+    <button id="exportBtn">Exportar CSV</button>
+    <button id="resetBtn">Reiniciar</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — edita esto antes de publicar
+   ============================================================ */
+const CONFIG = {
+  // Pega aquí la URL del Web App de Google Apps Script (ver README).
+  // Si lo dejas vacío, la página igual funciona pero solo guarda datos
+  // localmente en cada navegador (sin agregado central).
+  ENDPOINT_URL: "https://script.google.com/a/macros/miuandes.cl/s/AKfycbz6jt5aqEL-2nMKIJR3fBoPITciH7bO3kvUdEhKGmkolWTKvhE2vjg-AGjo2rY0UiZD/exec",
+  SPLIT_A: 0.5,          // proporción que ve la variante A (legal)
+  PROJECT: "scootsafe"   // etiqueta para identificar el experimento
+};
+
+/* ============================================================
+   CONTENIDO DE LAS VARIANTES
+   A = tratamiento (destaca seguridad legal)  ·  B = control (neutro)
+   ============================================================ */
+const VARIANTS = {
+  A: {
+    eyebrow: "Movilidad segura",
+    headline: "Arrienda tu scooter con casco incluido — y sin arriesgar multas.",
+    subhead: "Con la Ley de Convivencia Vial, circular sin casco puede costarte una multa municipal. Con ScootSafe el casco viene integrado al scooter: cumples la ley sin planificar nada.",
+    cta: "Arrendar con casco seguro",
+    micro: "Casco con láminas higiénicas desechables · Cumple la normativa vigente",
+    featTitle: "Por qué ScootSafe",
+    features: [
+      ["⚖️","Cumple la ley","Evita sanciones municipales por circular sin casco."],
+      ["🧼","Higiene garantizada","Láminas desechables: una superficie limpia en cada viaje."],
+      ["⚡","Cero fricción","El casco ya está en el scooter. No cargas nada contigo."]
+    ],
+    bandH: "Viaja seguro, sin cambiar tus hábitos.",
+    bandP: "Únete al piloto y arrienda con la tranquilidad de estar cumpliendo la ley.",
+    ctaSecond: "Arrendar con casco seguro"
+  },
+  B: {
+    eyebrow: "Movilidad urbana",
+    headline: "Tu scooter eléctrico, a un toque.",
+    subhead: "Desbloquea, anda y llega. Scooters disponibles en tu comuna para moverte cuando quieras, al precio de siempre.",
+    cta: "Arrendar scooter",
+    micro: "Tarifa por minuto · Disponibles cerca tuyo",
+    featTitle: "Por qué elegirnos",
+    features: [
+      ["🕒","Disponible 24/7","Scooters listos cerca tuyo a cualquier hora."],
+      ["📱","Pago simple","Tarifa por minuto, directo desde la app."],
+      ["⚡","Cero fricción","Desbloquea con un toque y parte al instante."]
+    ],
+    bandH: "Muévete por la ciudad a tu ritmo.",
+    bandP: "Únete y arrienda tu primer scooter en segundos.",
+    ctaSecond: "Arrendar scooter"
+  }
+};
+
+/* ============================================================
+   LÓGICA — no necesitas tocar nada de aquí hacia abajo
+   ============================================================ */
+const qs = new URLSearchParams(location.search);
+const ls = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+};
+
+// asignación de variante: ?v=a / ?v=b la fuerza; si no, aleatoria y persistente
+let variant = (qs.get("v")||"").toUpperCase();
+if(variant!=="A" && variant!=="B"){
+  variant = ls.get("ss_variant");
+  if(variant!=="A" && variant!=="B"){
+    variant = Math.random() < CONFIG.SPLIT_A ? "A" : "B";
+    ls.set("ss_variant", variant);
+  }
+}
+
+// id anónimo de visitante
+let vid = ls.get("ss_vid");
+if(!vid){ vid = "v_"+Date.now().toString(36)+Math.random().toString(36).slice(2,8); ls.set("ss_vid", vid); }
+
+// pinta el contenido de la variante
+const V = VARIANTS[variant];
+function $(id){ return document.getElementById(id); }
+$("eyebrow").textContent = V.eyebrow;
+$("headline").textContent = V.headline;
+$("subhead").textContent = V.subhead;
+$("ctaMain").textContent = V.cta;
+$("ctaSecond").textContent = V.ctaSecond;
+$("micro").textContent = V.micro;
+$("featTitle").textContent = V.featTitle;
+$("bandH").textContent = V.bandH;
+$("bandP").textContent = V.bandP;
+$("vtag").textContent = "Variante "+variant;
+$("featGrid").innerHTML = V.features.map(f=>
+  `<div class="card"><div class="ic">${f[0]}</div><h3>${f[1]}</h3><p>${f[2]}</p></div>`).join("");
+
+// envío de eventos (fire-and-forget; text/plain evita preflight CORS)
+function send(type, extra){
+  const payload = Object.assign({
+    project: CONFIG.PROJECT, variant, type, vid,
+    ts: new Date().toISOString(),
+    ref: document.referrer || "", ua: navigator.userAgent
+  }, extra||{});
+  if(CONFIG.ENDPOINT_URL){
+    try{
+      fetch(CONFIG.ENDPOINT_URL, {
+        method:"POST", mode:"no-cors", keepalive:true,
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+    }catch(e){}
+  }
+}
+
+// contadores locales (solo para monitoreo/demo en este navegador)
+function bump(key){
+  const k = "ss_"+key+"_"+variant;
+  const n = parseInt(ls.get(k)||"0",10)+1;
+  ls.set(k, String(n));
+  renderStats();
+}
+
+// impresión: una vez por sesión por visitante
+const seenKey = "ss_seen_"+variant;
+if(!sessionStorageSafeGet(seenKey)){
+  sessionStorageSafeSet(seenKey,"1");
+  send("impression");
+  bump("imp");
+}
+function sessionStorageSafeGet(k){ try{return sessionStorage.getItem(k);}catch(e){return null;} }
+function sessionStorageSafeSet(k,v){ try{sessionStorage.setItem(k,v);}catch(e){} }
+
+// clic en CTA -> registra y abre el smoke test
+function onCta(){
+  send("click");
+  bump("clk");
+  $("overlay").classList.add("open");
+}
+$("ctaMain").addEventListener("click", onCta);
+$("ctaSecond").addEventListener("click", onCta);
+
+// captura de correo (señal extra de intención)
+$("leadBtn").addEventListener("click", ()=>{
+  const email = $("email").value.trim();
+  send("lead", { email });
+  bump("lead");
+  $("overlay").querySelector(".modal").innerHTML =
+    '<div class="big">🎉</div><h3>¡Listo!</h3><p>Te avisaremos apenas lancemos el piloto. Gracias por sumarte.</p>';
+});
+$("closeBtn").addEventListener("click", ()=> $("overlay").classList.remove("open"));
+$("overlay").addEventListener("click", e=>{ if(e.target.id==="overlay") $("overlay").classList.remove("open"); });
+
+// panel de métricas locales (?stats=1)
+function renderStats(){
+  ["A","B"].forEach(v=>{
+    const imp = parseInt(ls.get("ss_imp_"+v)||"0",10);
+    const clk = parseInt(ls.get("ss_clk_"+v)||"0",10);
+    const ctr = imp ? ((clk/imp)*100).toFixed(1)+"%" : "–";
+    $("i"+v).textContent = imp; $("c"+v).textContent = clk; $("r"+v).textContent = ctr;
+  });
+}
+if(qs.get("stats")==="1"){
+  $("stats").classList.add("show");
+  renderStats();
+  $("resetBtn").addEventListener("click", ()=>{
+    ["imp","clk","lead"].forEach(m=>["A","B"].forEach(v=>ls.set("ss_"+m+"_"+v,"0")));
+    renderStats();
+  });
+  $("exportBtn").addEventListener("click", ()=>{
+    let rows = [["variante","vistas","clics","ctr"]];
+    ["A","B"].forEach(v=>{
+      const imp=parseInt(ls.get("ss_imp_"+v)||"0",10), clk=parseInt(ls.get("ss_clk_"+v)||"0",10);
+      rows.push([v, imp, clk, imp?(clk/imp).toFixed(4):"0"]);
+    });
+    const csv = rows.map(r=>r.join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+    a.download = "ctr_local.csv"; a.click();
+  });
+}
+</script>
+</body>
+</html>
